@@ -145,10 +145,60 @@ bool q_delete_dup(struct list_head *head)
 void q_swap(struct list_head *head)
 {
     // https://leetcode.com/problems/swap-nodes-in-pairs/
+    if (!head || list_empty(head) || list_is_singular(head))
+        return;
+    struct list_head *prev = NULL, *curr = NULL;
+    for (prev = head->next, curr = prev->next; prev != head && curr != head;
+         prev = prev->next->next, curr = curr->next->next) {
+        struct list_head *p = prev->prev, *l = curr->next;
+        curr->prev = p;
+        prev->next = l;
+        curr->next = prev;
+        prev->prev = curr;
+        p->next = curr;
+        l->prev = prev;
+
+        // prev and curr pointer switch
+        curr = curr->next;
+        prev = prev->prev;
+    }
 }
 
 /* Reverse elements in queue */
-void q_reverse(struct list_head *head) {}
+void q_reverse(struct list_head *head)
+{
+    if (!head || list_empty(head) || list_is_singular(head))
+        return;
+    struct list_head *tail_node = head->prev, *head_node = head->next;
+    for (; tail_node != head_node;
+         head_node = head_node->next, tail_node = tail_node->prev) {
+        struct list_head *tl = tail_node->next, *tp = tail_node->prev,
+                         *hl = head_node->next, *hp = head_node->prev;
+
+        if (tail_node->prev == head_node && head_node->next == tail_node) {
+            tail_node->prev = hp;
+            head_node->next = tl;
+            tl->prev = head_node;
+            hp->next = tail_node;
+            tail_node->next = head_node;
+            head_node->prev = tail_node;
+            break;
+        }
+        tail_node->next = hl;
+        head_node->prev = tp;
+        tail_node->prev = hp;
+        head_node->next = tl;
+        tp->next = head_node;
+        tl->prev = head_node;
+        hp->next = tail_node;
+        hl->prev = tail_node;
+
+        // tail_node and head_node pointer switch
+        struct list_head *tmp = head_node;
+        head_node = tail_node;
+        tail_node = tmp;
+    }
+}
 
 /* Reverse the nodes of the list k at a time */
 void q_reverseK(struct list_head *head, int k)
