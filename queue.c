@@ -1,8 +1,9 @@
+#include "queue.h"
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include "queue.h"
+#include "sort_impl.h"
 
 /* Notice: sometimes, Cppcheck would find the potential NULL pointer bugs,
  * but some of them cannot occur. You can suppress them by adding the
@@ -250,9 +251,37 @@ void q_reverseK(struct list_head *head, int k)
     }
 }
 
-/* Sort elements of queue in ascending/descending order */
-void q_sort(struct list_head *head, bool descend) {}
+int compare(void *priv, const struct list_head *a, const struct list_head *b)
+{
+    if (a == b) {
+        return 0;
+    }
 
+    bool is_descend = NULL;
+
+    if (priv) {
+        is_descend = *((bool *) priv);
+    }
+
+    int res;
+    if (!is_descend) {
+        res = strcmp(list_entry(a, element_t, list)->value,
+                     list_entry(b, element_t, list)->value);
+    } else {
+        res = strcmp(list_entry(b, element_t, list)->value,
+                     list_entry(a, element_t, list)->value);
+    }
+    return res;
+}
+
+
+/* Sort elements of queue in ascending/descending order */
+void q_sort(struct list_head *head, bool descend)
+{
+    if (!head || list_empty(head) || list_is_singular(head))
+        return;
+    timsort(&descend, head, compare);
+}
 /* Remove every node which has a node with a strictly less value anywhere to
  * the right side of it */
 int q_ascend(struct list_head *head)
