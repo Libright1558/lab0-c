@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include "list.h"
 #include "sort_impl.h"
 
@@ -192,6 +193,8 @@ static struct list_head *merge_collapse(void *priv,
 
 void timsort(void *priv, struct list_head *head, list_cmp_func_t cmp)
 {
+    clock_t time = clock();
+
     stk_size = 0;
 
     struct list_head *list = head->next, *tp = NULL;
@@ -224,4 +227,14 @@ void timsort(void *priv, struct list_head *head, list_cmp_func_t cmp)
         return;
     }
     merge_final(priv, cmp, head, stk1, stk0);
+
+    time = clock() - time;
+
+    FILE *f = fopen("timsort.dat", "a");
+
+    fprintf(f, "%ld\n", time);
+
+    fclose(f);
 }
+
+
