@@ -282,6 +282,14 @@ void q_sort(struct list_head *head, bool descend)
         return;
     timsort(&descend, head, compare);
 }
+
+void q_listsort(struct list_head *head, bool descend)
+{
+    if (!head || list_empty(head) || list_is_singular(head))
+        return;
+    list_sort(&descend, head, compare);
+}
+
 /* Remove every node which has a node with a strictly less value anywhere to
  * the right side of it */
 int q_ascend(struct list_head *head)
