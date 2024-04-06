@@ -40,13 +40,25 @@ $(GIT_HOOKS):
 OBJS := qtest.o report.o console.o harness.o queue.o \
         random.o dudect/constant.o dudect/fixture.o dudect/ttest.o \
         shannon_entropy.o \
-        linenoise.o web.o
+        linenoise.o web.o timSort.o listSort.o
 
-deps := $(OBJS:%.o=.%.o.d)
+PTEST := perf_test.o timSort.o listSort.o \
+		 report.o harness.o queue.o random.o web.o\
+		 console.o linenoise.o
+
+FTEST := f_test.o
+
+deps := $(OBJS:%.o=.%.o.d) 
 
 qtest: $(OBJS)
 	$(VECHO) "  LD\t$@\n"
 	$(Q)$(CC) $(LDFLAGS) -o $@ $^ -lm
+
+qperf: $(PTEST)
+	$(Q)$(CC) $(LDFLAGS) -o $@ $^ -lm 
+
+ft : $(FTEST)
+	$(Q)$(CC) -o $@ $^ 
 
 %.o: %.c
 	@mkdir -p .$(DUT_DIR)
@@ -75,7 +87,7 @@ valgrind: valgrind_existence
 	@echo "scripts/driver.py -p $(patched_file) --valgrind -t <tid>"
 
 clean:
-	rm -f $(OBJS) $(deps) *~ qtest /tmp/qtest.*
+	rm -f $(OBJS) $(PTEST) $(deps) $(FTEST) qperf ft *~ qtest /tmp/qtest.*
 	rm -rf .$(DUT_DIR)
 	rm -rf *.dSYM
 	(cd traces; rm -f *~)
